@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include <arpa/inet.h>  // htons / ntohs
+#include <vector>
 
 struct DNSHeader {
     uint16_t id;        // Client-chosed ID
@@ -59,3 +60,19 @@ bool parseQuestion(const uint8_t* buf, size_t len, DNSQuestion& out){
     return true; 
 }
 
+std::vector<uint8_t> makeNXDomain(const uint8_t* query, size_t qlen){
+    std::vector<uint8_t> resp(query, query+qlen);
+    auto* hdr = reinterpret_cast<DNSHeader*>(resp.data());
+
+    uint16_t flags = ntohs(hdr->flags);
+    flags |= (1 << 15);
+    flags &= ~(0xF << 0);
+    flags |= 3;
+    hdr->flags = htons(flags);
+
+    hdr->ancount = 0;
+    hdr->nscount = 0;
+    hdr->arcount = 0;
+
+    return resp; 
+}
