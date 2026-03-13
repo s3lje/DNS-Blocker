@@ -12,6 +12,12 @@ struct DNSHeader {
     uint16_t arcount;   // Number of additional records
 };
 
+struct DNSQuestion {
+    std::string qname;
+    uint16_t qtype;
+    uint16_t qclass;
+};
+
 std::string readName(const uint8_t* buf, size_t buflen, size_t& offset) {
     std::string name;
     bool jumped = false;
@@ -41,4 +47,15 @@ std::string readName(const uint8_t* buf, size_t buflen, size_t& offset) {
     return name;
 }
 
+bool parseQuestion(const uint8_t* buf, size_t len, DNSQuestion& out){
+    if (len < sizeof(DNSHeader) + 5) return false;
+    size_t offset = sizeof(DNSHeader);
+    out.qname = readName(buf, len, offset);
+    if (out.qname.empty()) return false;
+
+    if (offset + 4 > len) return false; 
+    out.qtype = ntohs(*reinterpret_cast<const uint16_t*>(buf + offset)); offset += 2;
+    out.qclass = ntohs(*reinterpret_cast<const uint16_t*>(buf + offset));
+    return true; 
+}
 
