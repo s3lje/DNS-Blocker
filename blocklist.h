@@ -48,3 +48,22 @@ bool Blocklist::load(const std::string& path){
     return true;
 }
 
+bool Blocklist::isBlocked(std::string domain) const {
+    normalize(domain);
+    while (!domain.empty()){
+        if (domains_.count(domain)) return true;
+        // Walk Upwards
+        auto dot = domain.find('.');
+        if (dot == std::string::npos) break;
+        domain = domain.substr(dot + 1);
+    }
+
+    return false;
+}
+
+void Blocklist::normalize(std::string& s){
+    std::transform(s.begin(), s.end(), s.begin(),
+            [](unsigned char c) { return std::tolower(c); });
+
+    if (!s.empty() && s.back() == '.') s.pop_back();
+}
