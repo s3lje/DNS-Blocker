@@ -21,4 +21,26 @@ int main(int argc, char* argv[]){
         return EXIT_FAILURE;
 
     Resolver resolver(upstream);
+
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0){
+        perror("socket");
+        return EXIT_FAILURE;
+    }
+
+    int yes = 1; 
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+
+    sockaddr_in addr{};
+    addr.sin_family      = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port        = htons(53);
+
+    if (bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0){
+        perror("bind - try running with sudo...\n");
+        close(sock);
+        return EXIT_FAILURE;
+    }
+
 }
