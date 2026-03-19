@@ -49,5 +49,15 @@ int main(int argc, char* argv[]){
     
     std::cout << "dns-blocker running on :53 upstream=" << upstream << std::endl;
 
+    // Main recieving loop
+    uint8_t buf[512];
+    while(running) {
+        sockaddr_in client{};
+        socklen_t clen = sizeof(client);
+        ssize_t n = recvfrom(sock, buf, sizeof(buf), 0,
+                             reinterpret_cast<sockaddr*>(&client), &clen);
+        if (n <= 0) continue;
 
+
+    }
 }
