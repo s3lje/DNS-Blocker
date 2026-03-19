@@ -72,4 +72,11 @@ int main() {
     test_header_size();
     test_header_field_layout();
     printf("All header tests passed.\n\n");
+
+    printf("=== dns.h: readName ===\n");
+    test_readName_simple();
+    test_readName_single_label();
+    test_readName_pointer_compression();
+    test_readName_truncated_is_safe();
+    printf("All readName tests passed.\n\n");
 }
