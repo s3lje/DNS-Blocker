@@ -43,4 +43,11 @@ int main(int argc, char* argv[]){
         return EXIT_FAILURE;
     }
 
+    
+    signal(SIGINT,  onSignal);
+    signal(SIGTERM, onSignal);
+    
+    std::cout << "dns-blocker running on :53 upstream=" << upstream << std::endl;
+
+
 }
