@@ -58,6 +58,28 @@ int main(int argc, char* argv[]){
                              reinterpret_cast<sockaddr*>(&client), &clen);
         if (n <= 0) continue;
 
+        DNSQuestion q;
+        if (parseQuestion(buf, n, q)) continue;
 
+        std::vector<uint8_t> response; 
+    
+        if (bl.isBlocked(q.qname)){
+            std::cout << "[BLOCK]  "<< q.qname << std::endl;
+            response = makeNXDomain(buf, static_cast<size_t>(n));
+        } else {
+            response = resolver.forward(buf, static_cast<size_t>(n));
+            if (response.empty()){
+                std::cerr << "[ERROR]  upstream timeout for " << q.qname << std::endl;
+                response = makeNXDomain(buf, static_cast<size_t>(n));
+            } else {
+                std::cout << "[ALLOW]  " << q.qname << std::endl;
+            }
+        }
+        sendto(sock, response.data(), response.size(), 0,
+                reinterpret_cast<sockaddr*>(&client), clen);
     }
+
+    close(sock);
+    std::cout << "Stopped.\n";
+    return 0;
 }
